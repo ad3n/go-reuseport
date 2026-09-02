@@ -1,6 +1,6 @@
-module github.com/libp2p/go-reuseport
+module github.com/ad3n/go-reuseport
 
-go 1.24
+go 1.26
 
 require (
 	github.com/stretchr/testify v1.7.0

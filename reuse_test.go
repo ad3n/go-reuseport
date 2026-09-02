@@ -5,6 +5,7 @@ import (
 	"net"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -49,4 +50,12 @@ func TestErrorWhenDialUnresolvable(t *testing.T) {
 	require.ErrorIs(t, err, net.UnknownNetworkError("asd"))
 	_, err = Dial("tcp", "a.b.c.d:1234", "a.b.c.d:1235")
 	require.Error(t, err)
+}
+
+func TestNewDialerResolvesLocalAddressOnce(t *testing.T) {
+	d, err := NewDialer("tcp4", "127.0.0.1:1234", time.Second)
+	require.NoError(t, err)
+	require.Equal(t, "127.0.0.1:1234", d.dialer.LocalAddr.String())
+	require.Equal(t, time.Second, d.dialer.Timeout)
+	require.NotNil(t, d.dialer.Control)
 }

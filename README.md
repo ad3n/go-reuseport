@@ -1,12 +1,6 @@
 # go-reuseport
 
-[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai)
-[![GoDoc](https://godoc.org/github.com/libp2p/go-reuseport?status.svg)](https://godoc.org/github.com/libp2p/go-reuseport)
-[![](https://img.shields.io/badge/project-libp2p-yellow.svg?style=flat-square)](https://libp2p.io/)
-[![](https://img.shields.io/badge/freenode-%23libp2p-yellow.svg?style=flat-square)](https://webchat.freenode.net/?channels=%23libp2p)
-[![codecov](https://codecov.io/gh/libp2p/go-reuseport/branch/master/graph/badge.svg)](https://codecov.io/gh/libp2p/go-reuseport)
-[![Travis CI](https://travis-ci.org/libp2p/go-reuseport.svg?branch=master)](https://travis-ci.org/libp2p/go-reuseport)
-[![Discourse posts](https://img.shields.io/discourse/https/discuss.libp2p.io/posts.svg)](https://discuss.libp2p.io)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ad3n/go-reuseport.svg)](https://pkg.go.dev/github.com/ad3n/go-reuseport)
 
 This package enables listening and dialing from _the same_ TCP or UDP port.
 This means that the following sockopts may be set:
@@ -21,20 +15,37 @@ important when attempting to do TCP NAT holepunching, which requires a process
 to both Listen and Dial on the same TCP port. This package provides some
 utilities around enabling this behaviour on various OS.
 
+Install it with:
+
+```sh
+go get github.com/ad3n/go-reuseport
+```
+
+For connection-heavy workloads, create a `Dialer` once and reuse it. This
+avoids resolving and allocating the local address for every connection:
+
+```go
+d, err := reuseport.NewDialer("tcp", "127.0.0.1:1234", 0)
+if err != nil {
+	log.Fatal(err)
+}
+c, err := d.Dial("tcp", "127.0.0.1:1235")
+```
+
 ## Examples
 
 
 ```Go
 // listen on the same port. oh yeah.
-l1, _ := reuse.Listen("tcp", "127.0.0.1:1234")
-l2, _ := reuse.Listen("tcp", "127.0.0.1:1234")
+l1, _ := reuseport.Listen("tcp", "127.0.0.1:1234")
+l2, _ := reuseport.Listen("tcp", "127.0.0.1:1234")
 ```
 
 ```Go
 // dial from the same port. oh yeah.
-l1, _ := reuse.Listen("tcp", "127.0.0.1:1234")
-l2, _ := reuse.Listen("tcp", "127.0.0.1:1235")
-c, _ := reuse.Dial("tcp", "127.0.0.1:1234", "127.0.0.1:1235")
+l1, _ := reuseport.Listen("tcp", "127.0.0.1:1234")
+l2, _ := reuseport.Listen("tcp", "127.0.0.1:1235")
+c, _ := reuseport.Dial("tcp", "127.0.0.1:1234", "127.0.0.1:1235")
 ```
 
 **Note: cant dial self because tcp/ip stacks use 4-tuples to identify connections, and doing so would clash.**
