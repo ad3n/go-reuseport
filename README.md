@@ -21,6 +21,8 @@ Install it with:
 go get github.com/ad3n/go-reuseport
 ```
 
+Requires Go 1.27.3 or newer.
+
 For connection-heavy workloads, create a `Dialer` once and reuse it. This
 avoids resolving and allocating the local address for every connection:
 
@@ -31,6 +33,20 @@ if err != nil {
 }
 c, err := d.Dial("tcp", "127.0.0.1:1235")
 ```
+
+Literal IP addresses (with or without TCP/UDP ports) and empty-host wildcard
+addresses use a fast resolution path while preserving the standard resolver's
+address representation. Successful numeric paths allocate one result.
+Numeric ports follow standard library semantics; service names use standard
+library lookup. Hostnames and
+unrecognized address forms continue through the standard resolver. Literal
+addresses normally own their IP storage; IPv4 fallback from an IPv6 unspecified
+address preserves the standard resolver's shared `net.IPv4zero` storage.
+Socket creation and address resolution still allocate;
+`Control` has zero steady-state allocations after its pool is warmed.
+
+Run `go test -run '^$' -bench . -benchmem` to measure allocations and compare
+literal address resolution against the standard library on your machine.
 
 ## Examples
 
