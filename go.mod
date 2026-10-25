@@ -1,6 +1,6 @@
 module github.com/ad3n/go-reuseport
 
-go 1.26
+go 1.27.3
 
 require (
 	github.com/stretchr/testify v1.7.0
